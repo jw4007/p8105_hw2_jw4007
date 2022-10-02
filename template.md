@@ -198,7 +198,7 @@ trans_ent
 
 ### Problem 2
 
-Read and clean the Mr. Trash Wheel sheet:
+#### 1) Read and clean the Mr. Trash Wheel sheet:
 
 ``` r
 mr_trash = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N533") %>%
@@ -207,8 +207,7 @@ mr_trash = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "
   mutate(sports_balls = as.integer(sports_balls), who = "mr")
 ```
 
-Use a similar process to import, clean, and organize the data for
-Professor Trash Wheel:
+#### 2) Read and clean the Professor Trash Wheel sheet:
 
 ``` r
 prof_trash = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Professor Trash Wheel", range = "A2:N115") %>%
@@ -217,7 +216,7 @@ prof_trash = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet =
    mutate(sports_balls = as.integer(sports_balls), who = "prof")
 ```
 
-Combine the two to produce a single tidy dataset
+#### 3) Combine the two to produce a single tidy dataset
 
 ``` r
 mr_prof = full_join(mr_trash, prof_trash)
@@ -231,3 +230,68 @@ weight of trash collected by Professor Trash Wheel is 135.5. The total
 number of sports balls collected by Mr. Trash Wheel in 2020 is 5313.
 
 ### Problem 3
+
+#### 1) clean the pols-month:
+
+``` r
+pols_month = 
+  read_csv(
+    "./q3data/pols-month.csv") %>%
+  janitor::clean_names() %>%
+  separate(mon, into = c("year", "month", "day"), sep = "-") %>%
+  mutate(month = as.numeric(month), month = month.abb[month], month = str_to_lower(month)) %>% 
+  mutate(president = prez_gop + prez_dem) %>%
+  mutate(year = as.numeric(year)) %>%
+  select(-prez_gop, -prez_dem, -day) %>%
+  arrange(year, month)
+dim(pols_month)
+## [1] 822   9
+```
+
+The pols_month dataset has 822 rows and 9 columns with the following
+variables: year, month, gov_gop, sen_gop, rep_gop, gov_dem, sen_dem,
+rep_dem, president. The years ranges from 1947 to 2015
+
+#### 2) clean the snp:
+
+``` r
+snp = read_csv(
+    "./q3data/snp.csv") %>%
+  janitor::clean_names() %>%
+  separate(date, into = c("month", "day", "year"), sep = "/") %>%
+  mutate(month = as.numeric(month), month = month.abb[month], month = str_to_lower(month)) %>%
+  mutate(year = as.numeric(year), year = 2000 + year) %>%
+  select(-day) %>%
+  arrange(year, month)
+  
+```
+
+The snp dataset has 787 rows and 3 columns with the following variables:
+month, year, close. The years ranges from 2000 to 2099
+
+#### 3) tidy the unemployment:
+
+``` r
+unemploy = read_csv(
+    "./q3data/unemployment.csv") %>%
+  janitor::clean_names() %>%
+  pivot_longer(jan:dec, names_to = "month", values_to = "percent_unemploy")
+  
+```
+
+The unemploy dataset has 816 rows and 3 columns with the following
+variables: year, month, percent_unemploy. The years ranges from 1948 to
+2015
+
+#### 4) joining the datatsets:
+
+``` r
+pols_snp = full_join(pols_month, snp, by = c("year" = "year", "month" = "month"))
+
+unemploy_pols_snp = full_join(pols_snp, unemploy, by = c("year" = "year", "month" = "month"))
+```
+
+The final dataset combining unemploy, snp, and pols_month has 1428 rows
+and 11 columns with the following variables: year, month, gov_gop,
+sen_gop, rep_gop, gov_dem, sen_dem, rep_dem, president, close,
+percent_unemploy (dimension:). The years ranges from 1947 to 2099
