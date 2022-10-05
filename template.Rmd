@@ -83,29 +83,30 @@ trans_ent
 
 #### 1) Read and clean the Mr. Trash Wheel sheet:
 ```{r}
-mr_trash = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N533") %>%
+mr_trash = read_excel("./Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N549") %>%
   janitor::clean_names() %>%
   filter(dumpster != "NA") %>%
+  mutate(year = as.numeric(year)) %>%
   mutate(sports_balls = as.integer(sports_balls), who = "mr")
 
 ```
+The "Mr. Trash Wheel" dataset has `r nrow(mr_trash)` observations with the following variables: `r colnames(mr_trash)`.The total number of sports balls collected by Mr. Trash Wheel in 2020 is `r sum(pull(mr_trash, sports_balls))`.
 
 #### 2) Read and clean the Professor Trash Wheel sheet:
 ```{r}
-prof_trash = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Professor Trash Wheel", range = "A2:N115") %>%
+prof_trash = read_excel("./Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", range = "A2:M96") %>%
   janitor::clean_names() %>%
   drop_na(dumpster) %>%
-   mutate(sports_balls = as.integer(sports_balls), who = "prof")
-
+  mutate(who = "prof")
 ```
+The "Professor Trash Wheel" dataset has `r nrow(prof_trash)` observations with the following variables: `r colnames(prof_trash)`.The total weight of trash collected by Professor Trash Wheel is `r sum(pull(prof_trash, weight_tons))`.
 
 #### 3) Combine the two to produce a single tidy dataset
 ```{r}
 mr_prof = full_join(mr_trash, prof_trash)
 ```
 The final dataset has `r nrow(mr_prof)` observations with the following variables: `r colnames(mr_prof)`.
-The total weight of trash collected by Professor Trash Wheel is `r sum(pull(prof_trash, weight_tons))`.
-The total number of sports balls collected by Mr. Trash Wheel in 2020 is `r sum(pull(mr_trash, sports_balls))`.
+
 
 ### Problem 3
 #### 1) clean the pols-month:
@@ -120,7 +121,9 @@ pols_month =
   mutate(year = as.numeric(year)) %>%
   select(-prez_gop, -prez_dem, -day) %>%
   arrange(year, month)
-dim(pols_month)
+
+max(pull(pols_month, year))
+min(pull(pols_month, year))
 ```
 The pols_month dataset has `r nrow(pols_month)` rows and `r ncol(pols_month)` columns with the following variables: `r colnames(pols_month)`. The years ranges from `r min(pull(pols_month, year))` to `r max(pull(pols_month, year))`
 
