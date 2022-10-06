@@ -89,8 +89,10 @@ mr_trash = read_excel("./Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash W
   mutate(year = as.numeric(year)) %>%
   mutate(sports_balls = as.integer(sports_balls), who = "mr")
 
+mr_trash_2020 = filter(mr_trash, year == 2020) 
 ```
-The "Mr. Trash Wheel" dataset has `r nrow(mr_trash)` observations with the following variables: `r colnames(mr_trash)`.The total number of sports balls collected by Mr. Trash Wheel in 2020 is `r sum(pull(mr_trash, sports_balls))`.
+
+The "Mr. Trash Wheel" dataset has `r nrow(mr_trash)` observations with the following variables: `r colnames(mr_trash)`.The total number of sports balls collected by Mr. Trash Wheel in 2020 is `r sum(pull(mr_trash_2020, sports_balls))`.
 
 #### 2) Read and clean the Professor Trash Wheel sheet:
 ```{r}
@@ -98,6 +100,8 @@ prof_trash = read_excel("./Trash Wheel Collection Data.xlsx", sheet = "Professor
   janitor::clean_names() %>%
   drop_na(dumpster) %>%
   mutate(who = "prof")
+
+sum(prof_trash$weight_tons)
 ```
 The "Professor Trash Wheel" dataset has `r nrow(prof_trash)` observations with the following variables: `r colnames(prof_trash)`.The total weight of trash collected by Professor Trash Wheel is `r sum(pull(prof_trash, weight_tons))`.
 

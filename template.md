@@ -201,20 +201,38 @@ trans_ent
 #### 1) Read and clean the Mr. Trash Wheel sheet:
 
 ``` r
-mr_trash = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N533") %>%
+mr_trash = read_excel("./Trash Wheel Collection Data.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N549") %>%
   janitor::clean_names() %>%
   filter(dumpster != "NA") %>%
+  mutate(year = as.numeric(year)) %>%
   mutate(sports_balls = as.integer(sports_balls), who = "mr")
+
+mr_trash_2020 = filter(mr_trash, year == 2020) 
 ```
+
+The “Mr. Trash Wheel” dataset has 547 observations with the following
+variables: dumpster, month, year, date, weight_tons, volume_cubic_yards,
+plastic_bottles, polystyrene, cigarette_butts, glass_bottles,
+grocery_bags, chip_bags, sports_balls, homes_powered, who.The total
+number of sports balls collected by Mr. Trash Wheel in 2020 is 856.
 
 #### 2) Read and clean the Professor Trash Wheel sheet:
 
 ``` r
-prof_trash = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Professor Trash Wheel", range = "A2:N115") %>%
+prof_trash = read_excel("./Trash Wheel Collection Data.xlsx", sheet = "Professor Trash Wheel", range = "A2:M96") %>%
   janitor::clean_names() %>%
   drop_na(dumpster) %>%
-   mutate(sports_balls = as.integer(sports_balls), who = "prof")
+  mutate(who = "prof")
+
+sum(prof_trash$weight_tons)
+## [1] 190.12
 ```
+
+The “Professor Trash Wheel” dataset has 94 observations with the
+following variables: dumpster, month, year, date, weight_tons,
+volume_cubic_yards, plastic_bottles, polystyrene, cigarette_butts,
+glass_bottles, grocery_bags, chip_bags, homes_powered, who.The total
+weight of trash collected by Professor Trash Wheel is 190.12.
 
 #### 3) Combine the two to produce a single tidy dataset
 
@@ -222,12 +240,10 @@ prof_trash = read_excel("./Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet =
 mr_prof = full_join(mr_trash, prof_trash)
 ```
 
-The final dataset has 524 observations with the following variables:
+The final dataset has 641 observations with the following variables:
 dumpster, month, year, date, weight_tons, volume_cubic_yards,
 plastic_bottles, polystyrene, cigarette_butts, glass_bottles,
-grocery_bags, chip_bags, sports_balls, homes_powered, who. The total
-weight of trash collected by Professor Trash Wheel is 135.5. The total
-number of sports balls collected by Mr. Trash Wheel in 2020 is 5313.
+grocery_bags, chip_bags, sports_balls, homes_powered, who.
 
 ### Problem 3
 
@@ -244,8 +260,11 @@ pols_month =
   mutate(year = as.numeric(year)) %>%
   select(-prez_gop, -prez_dem, -day) %>%
   arrange(year, month)
-dim(pols_month)
-## [1] 822   9
+
+max(pull(pols_month, year))
+## [1] 2015
+min(pull(pols_month, year))
+## [1] 1947
 ```
 
 The pols_month dataset has 822 rows and 9 columns with the following
